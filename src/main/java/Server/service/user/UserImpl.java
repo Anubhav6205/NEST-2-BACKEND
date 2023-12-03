@@ -1,8 +1,10 @@
 package Server.service.user;
 
 import org.apache.tomcat.util.bcel.Const;
+import org.bson.Document;
 import org.hibernate.internal.util.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -25,6 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+
 @Service
 public class UserImpl implements UserInterface {
 
@@ -35,6 +40,9 @@ public class UserImpl implements UserInterface {
 	private PropertyRepository propertyRepository;
 	@Autowired
 	JwtService jwtService;
+
+	@Autowired
+	private MongoTemplate mongoTemplate;
 
 	@Override
 	public ResponseEntity<?> addUser(@RequestBody UserModel user) {
@@ -62,14 +70,51 @@ public class UserImpl implements UserInterface {
 	}
 
 	private UserModel findUserByEmail(String email) {
+		Document query = new Document("email", email);
+
+		// Use the explain command to get query execution details
+		Document explainCommand = new Document("find", "your_collection_name").append("filter", query);
+		Document explainResult = mongoTemplate.getDb().runCommand(new Document("explain", explainCommand));
+
+		// Log or print the explain result
+		System.out.println("Explain Result: " + explainResult.toJson());
+
+		// Now, you can proceed with the regular find operation
 		List<UserModel> existingUsers = userRepository.findAll();
+
 		for (UserModel existingUser : existingUsers) {
 			if (existingUser.getEmail().equals(email)) {
 				return existingUser;
 			}
 		}
+
 		return null;
 	}
+//	   public UserModel findUserByEmail(String email) {
+//	        try {
+//	            // Use the explain command to get query execution details
+//	            Document query = new Document("email", email);
+//	            Document explainCommand = new Document("find", "your_collection_name")
+//	                    .append("filter", query)
+//	                    .append("verbosity", "executionStats");  // Specify verbosity for detailed stats
+//	            Document explainResult = mongoTemplate.getDb().runCommand(new Document("explain", explainCommand));
+//
+//	            // Log or print the explain result
+//	            System.out.println("Explain Result: " + explainResult.toJson());
+//
+//	            // Now, you can proceed with the regular find operation using an indexed query
+//	            Query indexedQuery = new Query(Criteria.where("email").is(email));
+//	            UserModel existingUser = mongoTemplate.findOne(indexedQuery, UserModel.class);
+//
+//	            return existingUser;
+//	        } catch (Exception e) {
+//	            // Log or handle the exception
+//	            e.printStackTrace();
+//	            return null;
+//	        }
+//	    }
+//	
+//	
 
 	@Override
 	public ResponseEntity<?> checkUser(@RequestBody UserModel user) {
@@ -80,20 +125,18 @@ public class UserImpl implements UserInterface {
 			UserModel existingUser = findUserByEmail(user.getEmail());
 //			System.out.println("User data after login: "+existingUser.getPropertiesDetails().get(0).getPropertyDetails().getName());
 			System.out.println("after get email");
-	
-			
 
 			Map<String, Object> responseData = new HashMap<>();
-			System.out.println("in login ");
 
 			if (existingUser != null && BCrypt.checkpw(user.getPassword(), existingUser.getPassword())) {
-				System.out.println("in login 2 ");
 
 				UserModel completeUserData = findUserByEmail(existingUser.getEmail());
 				String token = jwtService.generateToken(completeUserData);
 
 				// Verify the token associated with the user
 				System.out.println("in login 10 ");
+				System.out.println("the user is");
+				System.out.println(completeUserData.getFirstName());
 				boolean isTokenValid = jwtService.verifyToken(token);
 				responseData.put("token", token);
 				responseData.put("userData", completeUserData);
@@ -120,7 +163,7 @@ public class UserImpl implements UserInterface {
 				return ResponseEntity.status(HttpStatus.OK).body(responseData);
 			}
 		} catch (Exception e) {
-			System.out.println("error" + e.getMessage());
+			System.out.println("error in check user " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body("Unable to check user in backend: " + e.getMessage());
 		}
@@ -207,23 +250,23 @@ public class UserImpl implements UserInterface {
 				Jws<Claims> claimsJws = Jwts.parser().setSigningKey(jwtService.SECRET_KEY).parseClaimsJws(token);
 				Claims claims = claimsJws.getBody();
 				String userId = (String) claims.get("id");
-	
+
 				UserModel userData = userRepository.findById(userId).orElse(null);
 				responseData.put("userData", userData);
 				responseData.put("Status", true);
-				
+
 				return ResponseEntity.status(HttpStatus.OK).body(responseData);
 
 			}
 			responseData.put("Status", false);
-		
+
 			return ResponseEntity.status(HttpStatus.OK).body(responseData);
 
 		}
 
 		catch (Exception e) {
 			responseData.put("Status", false);
-		
+
 			return ResponseEntity.status(HttpStatus.OK).body(responseData);
 
 		}
@@ -231,11 +274,10 @@ public class UserImpl implements UserInterface {
 	}
 
 	@Override
-	public ResponseEntity<?> getUserById(@RequestBody Map<String,String> currentUserMap) {
+	public ResponseEntity<?> getUserById(@RequestBody Map<String, String> currentUserMap) {
 		Map<String, Object> responseData = new HashMap<>();
 		try {
-			String currentUserId=currentUserMap.get("currentUserId");
-		
+			String currentUserId = currentUserMap.get("currentUserId");
 
 			UserModel userData = userRepository.findById(currentUserId).orElse(null);
 			responseData.put("userData", userData);
@@ -247,7 +289,7 @@ public class UserImpl implements UserInterface {
 
 		catch (Exception e) {
 			responseData.put("Status", false);
-			
+
 			return ResponseEntity.status(HttpStatus.OK).body(responseData);
 
 		}
