@@ -85,7 +85,15 @@ public class PropertyImpl implements PropertyInterface {
 	@Override
 	public ResponseEntity<?> getProperties() {
 		try {
-			List<PropertiesModel> properties = propertyRepository.findAll();
+			List<PropertiesModel> properties = new ArrayList<>();
+			try {	
+			
+			properties = propertyRepository.findAll();
+			
+			} catch (Exception exc) {
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Mongo Not working" + exc.getMessage());
+			}
+
 			Map<String, Object> responseData = new HashMap<>();
 			List<Map<String, Object>> propertieswithLandlordList = new ArrayList<>();
 

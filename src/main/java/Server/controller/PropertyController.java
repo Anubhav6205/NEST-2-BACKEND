@@ -38,8 +38,12 @@ public class PropertyController {
 	public ResponseEntity<?>getProperties()
 	{
 		return propertyInterface.getProperties();
-		
-		
+	}
+	
+	@GetMapping("/property/hello")
+	public String abc()
+	{
+		return "hello, property api hello working";
 	}
 	
 	
