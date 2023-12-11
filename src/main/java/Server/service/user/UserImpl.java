@@ -49,6 +49,7 @@ public class UserImpl implements UserInterface {
 		try {
 			String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
 			user.setPassword(hashedPassword);
+			System.out.println(user.getCurrentProperty());
 
 			this.userRepository.save(user);
 
@@ -213,6 +214,7 @@ public class UserImpl implements UserInterface {
 
 				existingUser.setEmail(updatedUser.getEmail());
 				existingUser.setRole(updatedUser.getRole());
+				existingUser.setCurrentProperty(updatedUser.getCurrentProperty());
 
 				// Add other fields as needed
 
