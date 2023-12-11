@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import Server.model.PaymentModel;
 import Server.model.UserModel;
 import Server.model.appointment.AppointmentWithId;
 import Server.service.user.UserInterface;
@@ -45,6 +46,9 @@ public class UserController {
 	@ResponseBody
 	public ResponseEntity<?>updateUser(@RequestBody UserModel user)
 	{
+		System.out.println("in update user controller");
+		System.out.println(user.getFirstName());
+		System.out.println(user.getPaymentHistory());
 		return userInterface.updateUser(user);
 	}
 	
@@ -63,6 +67,14 @@ public class UserController {
 	public ResponseEntity<?>convertAppointmentIds(@RequestBody AppointmentWithId appointmentDataId)
 	{
 		return userInterface.convertAppointmentIds(appointmentDataId);
+	}
+	
+	
+	@PostMapping("/user/payment/add")
+	@ResponseBody
+	public ResponseEntity<?>addPaymentRecord(@RequestBody PaymentModel currentPayment){
+		System.out.println("executing add payment");
+		return userInterface.addPaymentRecord(currentPayment);
 	}
 	
 	

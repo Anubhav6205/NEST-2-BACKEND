@@ -39,9 +39,11 @@ public class UserModel {
 	
 	private AppointmentWithId[] appointmentDetails;
 	
+	private PropertiesModel currentProperty;
 	
-	//To fix infine loop in references
-
+	private List <PaymentModel> paymentHistory;
+	
+	
     private List<PropertiesModel> propertiesDetails;
 
 	public String getId()
@@ -49,7 +51,7 @@ public class UserModel {
 		return id;
 	}
 	public String getFirstName() {
-		System.out.println("invoked firstname");
+		
 		return firstName;
 	}
 	public void setFirstName(String firstName) {
@@ -98,11 +100,11 @@ public class UserModel {
 	}
 
 	public List<PropertiesModel> getPropertiesDetails() {
-		System.out.println("getting user properties");
+
 		return propertiesDetails;
 	}
 	public void setPropertiesDetails(List<PropertiesModel> propertiesDetails) {
-		System.out.println("setting user properties");
+	
 		this.propertiesDetails = propertiesDetails;
 	}
 	public AppointmentWithId[] getAppointmentDetails() {
@@ -111,6 +113,19 @@ public class UserModel {
 	public void setAppointmentDetails(AppointmentWithId[] appointmentDetails) {
 		this.appointmentDetails = appointmentDetails;
 	}
+	public PropertiesModel getCurrentProperty() {
+		return currentProperty;
+	}
+	public void setCurrentProperty(PropertiesModel currentProperty) {
+		this.currentProperty = currentProperty;
+	}
+	public List <PaymentModel> getPaymentHistory() {
+		return paymentHistory;
+	}
+	public void setPaymentHistory(List <PaymentModel> paymentHistory) {
+		this.paymentHistory = paymentHistory;
+	}
+
 
 	
 	

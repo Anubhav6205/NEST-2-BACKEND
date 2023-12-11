@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;import org.springframework.web.bind.annotation.ResponseBody;
 
+import Server.model.PaymentModel;
 import Server.model.UserModel;
 import Server.model.appointment.AppointmentWithId;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +30,10 @@ public interface UserInterface {
 	
 	
 //	public ResponseEntity<?>updateUser(@RequestBody String token );
+	
+	//ADD PAYMENT RECORD
+	
+	public ResponseEntity<?>addPaymentRecord(@RequestBody PaymentModel currentPayment);
 	
 	
 	//GET CURRENT USER BY TOKEN

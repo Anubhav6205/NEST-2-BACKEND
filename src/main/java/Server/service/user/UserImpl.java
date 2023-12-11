@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import Server.jwt.JwtService;
+import Server.model.PaymentModel;
 import Server.model.PropertiesModel;
 import Server.model.UserModel;
 import Server.model.appointment.AppointmentWithId;
@@ -23,6 +24,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,24 +136,24 @@ public class UserImpl implements UserInterface {
 				String token = jwtService.generateToken(completeUserData);
 
 				// Verify the token associated with the user
-				System.out.println("in login 10 ");
-				System.out.println("the user is");
+				System.out.println("user name");
 				System.out.println(completeUserData.getFirstName());
+
 				boolean isTokenValid = jwtService.verifyToken(token);
 				responseData.put("token", token);
 				responseData.put("userData", completeUserData);
-				System.out.println("in login 11");
+				
 
 				if (isTokenValid) {
-					System.out.println("in login 12 ");
+			
 //					System.out.println(completeUserData.getPropertiesDetails().get(0).getPropertyDetails().getName());
 					responseData.put("status", "true");
-					System.out.println("in login 3");
+		
 
 					return ResponseEntity.status(HttpStatus.OK).body(responseData);
 				} else {
 
-					System.out.println("in login 4");
+				
 					responseData.put("status", "false");
 					return ResponseEntity.status(HttpStatus.OK).body(responseData);
 
@@ -168,7 +170,50 @@ public class UserImpl implements UserInterface {
 					.body("Unable to check user in backend: " + e.getMessage());
 		}
 	}
+	
+	
+	
 
+	@Override
+	public ResponseEntity<?>addPaymentRecord(@RequestBody PaymentModel currentPayment){
+		Map<String, Object> responseData = new HashMap<>();
+		try {
+			String id=currentPayment.getId();
+		    UserModel currentUser=userRepository.findById(id).orElse(null);
+		    List <PaymentModel> totalPayments= new ArrayList<>();
+		    
+		    totalPayments=currentUser.getPaymentHistory();
+		    if(totalPayments==null)
+		    {
+		    	totalPayments=new ArrayList<>();
+		    }
+		    totalPayments.add(currentPayment);
+		    currentUser.setPaymentHistory(totalPayments);
+		    userRepository.save(currentUser);
+			responseData.put("status", "true");
+			System.out.println("updated user data");
+			
+
+			return ResponseEntity.status(HttpStatus.OK).body(responseData);
+		    
+		    
+		    
+		    
+		    
+			
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			responseData.put("Error", "Unable to add payment record " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseData);
+			
+
+		}
+		
+	}
+
+	
+	
 	@Override
 	public ResponseEntity<?> convertAppointmentIds(@RequestBody AppointmentWithId appointmentDataId) {
 		Map<String, Object> responseData = new HashMap<>();
@@ -201,10 +246,13 @@ public class UserImpl implements UserInterface {
 	public ResponseEntity<?> updateUser(@RequestBody UserModel updatedUser) {
 		try {
 			// Find the existing user in the database
+			System.out.println("IN TRY FUNC");
 			UserModel existingUser = userRepository.findById(updatedUser.getId()).orElse(null);
+		
 
 			if (existingUser != null) {
 				// Update specific fields if they are present in the request
+				System.out.println("before setting");
 
 				existingUser.setFirstName(updatedUser.getFirstName());
 
@@ -213,11 +261,14 @@ public class UserImpl implements UserInterface {
 
 				existingUser.setEmail(updatedUser.getEmail());
 				existingUser.setRole(updatedUser.getRole());
+				existingUser.setCurrentProperty(updatedUser.getCurrentProperty());
+				existingUser.setPaymentHistory(updatedUser.getPaymentHistory());
 
 				// Add other fields as needed
 
 				// Save the updated user to the database
 				userRepository.save(existingUser);
+				System.out.println("after setting");
 
 				// Optionally, generate a new JWT token after the update
 				String newToken = jwtService.generateToken(existingUser);
