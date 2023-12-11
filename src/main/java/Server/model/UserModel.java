@@ -36,7 +36,6 @@ public class UserModel {
 	private String password;
 	private String contactNumber;
 	private String profilePicture;
-	private PropertiesModel currentProperty;
 	
 	private AppointmentWithId[] appointmentDetails;
 	
@@ -111,12 +110,6 @@ public class UserModel {
 	}
 	public void setAppointmentDetails(AppointmentWithId[] appointmentDetails) {
 		this.appointmentDetails = appointmentDetails;
-	}
-	public PropertiesModel getCurrentProperty() {
-		return currentProperty;
-	}
-	public void setCurrentProperty(PropertiesModel currentProperty) {
-		this.currentProperty = currentProperty;
 	}
 
 	

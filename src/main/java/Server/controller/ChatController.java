@@ -18,7 +18,7 @@ import Server.service.chat.ChatInterface;
 public class ChatController {
 	
 	@Autowired
-	ChatInterface chatInterface;
+	ChatInterface chatInterface;   
 
 	@PostMapping("/chat/get")
 	@ResponseBody
