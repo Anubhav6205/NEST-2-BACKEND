@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessage {
-    public ChatMessage() {
+    // public ChatMessage() {
     	
-    }
+    // }
     
 //    public ChatMessage(String id,String message,String senderId,boolean isChat)
 //    {
