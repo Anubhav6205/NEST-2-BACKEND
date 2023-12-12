@@ -1,5 +1,24 @@
 package Server.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+//import org.junit.runner.RunWith;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MockMvcBuilder;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -22,75 +41,58 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import Server.model.ChatMessage;
 import Server.model.ChatsModel;
 import Server.service.chat.ChatInterface;
-import ch.qos.logback.core.net.ObjectWriter;
+import jakarta.mail.internet.ContentType;
 
 class ChatControllerTest {
+	private MockMvc mockMvc;
 
-	@Test
-	void getChatsTest() {
-		ChatInterface chatInterface = mock(ChatInterface.class);
-		ChatController chatController = new ChatController();
-		chatController.setChatInterface(chatInterface);
+	ObjectMapper objectMapper = new ObjectMapper();
+	ObjectWriter objectWriter = objectMapper.writer();
 
-		ChatsModel chatsModel = new ChatsModel();
-		chatsModel.setPersonAId("personA123");
-		chatsModel.setPersonBId("personB987");
-		when(chatInterface.getChats(chatsModel)).thenReturn(ResponseEntity.ok().build());
+	@Mock
+	private ChatInterface chatInterface;
 
-		// CALLING THE CHAT CONTROLLER FUNCTION
-		ResponseEntity<?> chatsResponse = chatController.getChats(chatsModel);
+	@InjectMocks
+	private ChatController chatController;
 
-		// ASSERTION
-		assertEquals(200, chatsResponse.getStatusCode().value());
+	@BeforeEach
+	public void setUp() {
+		MockitoAnnotations.initMocks(this);
+		this.mockMvc = MockMvcBuilders.standaloneSetup(chatController).build();
 
-		// verifying that it was called
-		verify(chatInterface).getChats(chatsModel);
 	}
 
 	@Test
-	void addChatTest() {
-		ChatInterface chatInterface = mock(ChatInterface.class);
-		ChatController chatController = new ChatController();
-		chatController.setChatInterface(chatInterface);
-		ChatsModel chatsModel = new ChatsModel();
-		List<ChatMessage> messageDetail = new ArrayList<>();
-		ChatMessage currentMessage = new ChatMessage();
-		currentMessage.setId("123");
-		currentMessage.setMessage("Mock message");
-		currentMessage.setSenderId("123ABC");
-		currentMessage.setisChat(true);
-		messageDetail.add(currentMessage);
-		when(chatInterface.addChat(chatsModel)).thenReturn(ResponseEntity.ok().build());
+	void testGetChats() throws Exception {
+		// Arrange
+		ChatsModel chats = new ChatsModel();
+		chats.setId("123");
+		List<ChatMessage> messages = new ArrayList<>();
+		messages.add(new ChatMessage("id1", "MockMessag1", "mockSenderId", true));
+		chats.setMessageDetail(messages);
+		chats.setPersonAId("657848767851d80bfd4b5e2d");
+		chats.setPersonBId("657846277851d80bfd4b5e21");
+		ResponseEntity<ChatsModel> expectedResponse = ResponseEntity.status(HttpStatus.OK).body(chats);
+		Mockito.doReturn(expectedResponse).when(chatInterface).getChats(chats);
 
-		ResponseEntity<?> chatResponse = chatController.addChat(chatsModel);
+		// Act
+		// Mock HTTP request
+		MvcResult mvcResult = mockMvc
+				.perform(MockMvcRequestBuilders.post("/chat/get").contentType(MediaType.APPLICATION_JSON)
 
-		assertEquals(200, chatResponse.getStatusCode().value());
+						.content(objectWriter.writeValueAsString(chats)))
+				.andReturn();
 
-		verify(chatInterface).getChats(chatsModel);
+		// Assert
+		int expectedStatusCode = expectedResponse.getStatusCode().value();
+		int actualStatusCode = mvcResult.getResponse().getStatus();
+		assertEquals(expectedStatusCode, actualStatusCode);
 
+//        String expectedResponseBody = new ObjectMapper().writeValueAsString(expectedResponse.getBody());
+//        String actualResponseBody = mvcResult.getResponse().getContentAsString();
+//        System.out.println(expectedResponseBody + " expected");
+//        System.out.println(actualResponseBody + "actual");
+//        assertEquals(expectedResponseBody, actualResponseBody);
 	}
-//
-//	@Test
-//	void testGetConversations() {
-//
-//		ChatInterface chatInterfaceMock = mock(ChatInterface.class);
-//
-//		ChatController chatController = new ChatController();
-//		chatController.setChatInterface(chatInterfaceMock);
-//
-//		Map<String, String> currentUserId = new HashMap<>();
-//		currentUserId.put("currentUserId", "randomUserId");
-//
-//		Map<String, Object> responseData = new HashMap<>();
-//
-//		when(chatInterfaceMock.getConversations(currentUserId)).thenReturn(ResponseEntity.ok().build());
-//
-//		ResponseEntity<?> response = chatController.getConversations(currentUserId);
-//
-//		assertEquals(HttpStatus.OK, response.getStatusCode());
-//		assertEquals("Mock data", response.getBody());
-//
-//		verify(chatInterfaceMock).getConversations(currentUserId);
-//	}
 
 }

@@ -8,6 +8,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessage {
+    public ChatMessage() {
+    	
+    }
+    
+    public ChatMessage(String id,String message,String senderId,boolean isChat)
+    {
+    	this.id=id;
+    	this.message=message;
+    	this.senderId=senderId;
+    	this.isChat=isChat;
+    }
     private String id;
     private String message;
     private String senderId;
