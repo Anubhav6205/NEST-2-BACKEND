@@ -346,4 +346,109 @@ public class UserImpl implements UserInterface {
 		}
 
 	}
+	@Override
+	public ResponseEntity<?> deleteAppointment(@RequestBody String ids) {
+	    Map<String, Object> responseData = new HashMap<>();
+	    System.out.println("IN DELETE APPOINTMENT");
+	    System.out.println(ids);
+
+	    try {
+	        // Extract values from the ids string
+	        String userId = ids.split(",")[0];
+	        String landlordId = ids.split(",")[1];
+	        String propertyId = ids.split(",")[2];
+	        Boolean isUser = Boolean.parseBoolean(ids.split(",")[3]);
+	        String[] time = ids.split(",")[4].split(" ");
+		    System.out.println("IN DELETE APPOINTMENT 1");
+
+	        // Get user data
+	        UserModel userData = userRepository.findById(userId).orElse(null);
+
+	        if (userData != null) {
+	    	    System.out.println("IN DELETE APPOINTMENT 2");
+	            // Get existing userAppointments
+	            AppointmentWithId[] userAppointments = userData.getAppointmentDetails();
+
+	            // Create a new userAppointment based on the extracted details
+	            AppointmentWithId userAppointment = new AppointmentWithId();
+	            userAppointment.setIsUser(isUser);
+	            userAppointment.setLandlordDetails(landlordId);
+	            userAppointment.setUserDetails(userId);
+	            userAppointment.setPropertyDetails(propertyId);
+	            userAppointment.setTime(time);
+
+	            // Identify and remove the appointment with the given details
+	            for (int i = 0; i < userAppointments.length; i++) {
+	                if (userAppointments[i] != null &&
+	                        userAppointments[i].getUserDetails().equals(userAppointment.getUserDetails()) &&
+	                        userAppointments[i].getLandlordDetails().equals(userAppointment.getLandlordDetails()) &&
+	                        userAppointments[i].getPropertyDetails().equals(userAppointment.getPropertyDetails())){
+	                    // Remove the appointment by setting it to null
+	                	System.out.println("setting to null");
+	                    userAppointments[i] = null;
+	                    break;
+	                }
+	            }
+
+	            // Set the updated appointment details back to user data
+	            userData.setAppointmentDetails(userAppointments);
+
+	            // Save the updated user data
+	            userRepository.save(userData);
+
+	            // Get landlord data
+	            UserModel landlordData = userRepository.findById(landlordId).orElse(null);
+
+	            if (landlordData != null) {
+	        	    System.out.println("IN DELETE APPOINTMENT 3");
+	                // Get existing landlordAppointments
+	                AppointmentWithId[] landlordAppointments = landlordData.getAppointmentDetails();
+
+	                // Create a new landlordAppointment based on the extracted details
+	                AppointmentWithId landlordAppointment = new AppointmentWithId();
+	                landlordAppointment.setIsUser(isUser);
+	                landlordAppointment.setLandlordDetails(landlordId);
+	                landlordAppointment.setUserDetails(userId);
+	                landlordAppointment.setPropertyDetails(propertyId);
+	                landlordAppointment.setTime(time);
+
+	                // Identify and remove the appointment with the given details
+	                for (int i = 0; i < landlordAppointments.length; i++) {
+	                	System.out.println("user id : "+    landlordAppointments[i].getUserDetails() + " param user id: "+landlordAppointment.getUserDetails());
+	                    if (landlordAppointments[i] != null &&
+	                            landlordAppointments[i].getUserDetails().equals(landlordAppointment.getUserDetails()) &&
+	                            landlordAppointments[i].getLandlordDetails().equals(landlordAppointment.getLandlordDetails()) &&
+	                            landlordAppointments[i].getPropertyDetails().equals(landlordAppointment.getPropertyDetails()) )
+	                         {
+	                        // Remove the appointment by setting it to null
+	                        landlordAppointments[i] = null;
+	                    	System.out.println("setting to null");
+	                        break;
+	                    }
+	                }
+
+	                // Set the updated appointment details back to landlord data
+	                landlordData.setAppointmentDetails(landlordAppointments);
+
+	                // Save the updated landlord data
+	                userRepository.save(landlordData);
+
+	                // Set response status to true
+	                responseData.put("Status", true);
+	            } else {
+	                // Landlord data not found
+	                responseData.put("Status", false);
+	            }
+	        } else {
+	            // User data not found
+	            responseData.put("Status", false);
+	        }
+
+	        return ResponseEntity.status(HttpStatus.OK).body(responseData);
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        responseData.put("Status", false);
+	        return ResponseEntity.status(HttpStatus.OK).body(responseData);
+	    }
+	}
 }

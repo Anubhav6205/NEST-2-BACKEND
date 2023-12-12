@@ -16,29 +16,24 @@ import Server.service.email.emailInterface;
 @CrossOrigin(origins = "http://localhost:4200")
 public class EmailController {
 
- @Autowired
- private emailInterface emailService;
+	@Autowired
+	private emailInterface emailService;
 
- @PostMapping("/email")
- @ResponseBody
- public ResponseEntity<String> sendEmail(@RequestBody EmailModel emailRequest) {
-     System.out.println("Received email request in backend");
+	@PostMapping("/email")
+	@ResponseBody
+	public ResponseEntity<String> sendEmail(@RequestBody EmailModel emailRequest) {
+		System.out.println("Received email request in backend");
 
-     try {
-    
+		try {
 
-         emailService.sendEmailWithImage(
-                 emailRequest.getTo(),
-                 emailRequest.getSubject(),
-                 emailRequest.getBody(),
-                 emailRequest.getImageData()
-         );
-     
-         System.out.println("Email sent successfully");
-         return ResponseEntity.ok("Email sent successfully!");
-     } catch (Exception e) {
-         e.printStackTrace();
-         return ResponseEntity.status(500).body("Failed to send email: " + e.getMessage());
-     }
- }
+			emailService.sendEmailWithImage(emailRequest.getTo(), emailRequest.getSubject(), emailRequest.getBody(),
+					emailRequest.getImageData());
+
+			System.out.println("Email sent successfully");
+			return ResponseEntity.ok("Email sent successfully!");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(500).body("Failed to send email: " + e.getMessage());
+		}
+	}
 }

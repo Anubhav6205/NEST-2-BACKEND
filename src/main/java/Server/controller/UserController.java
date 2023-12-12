@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import Server.model.PaymentModel;
 import Server.model.UserModel;
 import Server.model.appointment.AppointmentWithId;
+import Server.model.appointment.AppointmentWithValue;
 import Server.service.user.UserInterface;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -67,6 +68,14 @@ public class UserController {
 	public ResponseEntity<?>convertAppointmentIds(@RequestBody AppointmentWithId appointmentDataId)
 	{
 		return userInterface.convertAppointmentIds(appointmentDataId);
+	}
+	
+	@PostMapping("/user/appointment/delete")
+	@ResponseBody
+	public ResponseEntity<?>deleteAppointment(@RequestBody String ids)
+	{
+		return userInterface.deleteAppointment(ids);
+		
 	}
 	
 	

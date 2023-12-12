@@ -19,6 +19,11 @@ public class ChatController {
 	
 	@Autowired
 	ChatInterface chatInterface;   
+	
+	public void setChatInterface(ChatInterface chatInterface)
+	{
+		this.chatInterface=chatInterface;
+	}
 
 	@PostMapping("/chat/get")
 	@ResponseBody

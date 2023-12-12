@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;import org.springfram
 import Server.model.PaymentModel;
 import Server.model.UserModel;
 import Server.model.appointment.AppointmentWithId;
+import Server.model.appointment.AppointmentWithValue;
 import jakarta.servlet.http.HttpServletRequest;
 
 public interface UserInterface {
@@ -43,6 +44,10 @@ public interface UserInterface {
 	
 	//GET USER BY ID
 	public ResponseEntity<?>getUserById(@RequestBody Map<String,String> currentUserId);
+	
+	//DELETE APPOINTMENT 
+	
+	public ResponseEntity<?>deleteAppointment(@RequestBody String ids);
 	
 	
 }
